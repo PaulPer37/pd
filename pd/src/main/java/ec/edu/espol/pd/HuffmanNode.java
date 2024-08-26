@@ -10,13 +10,13 @@ package ec.edu.espol.pd;
  */
 public class HuffmanNode implements Comparable<HuffmanNode> {
     int frecuencia;
-    char caracter;
+    Byte valor;
     HuffmanNode izquierda;
     HuffmanNode derecha;
 
-    public HuffmanNode(int frecuencia, char caracter) {
+    public HuffmanNode(int frecuencia, Byte valor) {
         this.frecuencia = frecuencia;
-        this.caracter = caracter;
+        this.valor = valor;
         this.izquierda = null;
         this.derecha = null;
     }

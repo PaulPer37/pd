@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class EleccionController implements Initializable {
     /**
      * Initializes the controller class.
      */
-    private File file1;
+        private File file1;
     private File file2;
     public Button comprimir; 
     public Button descomprimir; 
@@ -42,7 +43,7 @@ public class EleccionController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // Inicialización del controlador
     }    
     
     @FXML
@@ -124,15 +125,17 @@ public class EleccionController implements Initializable {
         if (file2 != null) {
             try {
                 String decompressedFilePath = this.getDecompressedFilePath(file2);
-                
+
                 // Leer los códigos de Huffman del archivo comprimido
-                Map<Character, String> huffmanCodes;
+                Map<Byte, String> huffmanCodes;
                 try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file2))) {
-                    huffmanCodes = (Map<Character, String>) inputStream.readObject();
+                    huffmanCodes = (Map<Byte, String>) inputStream.readObject();
                 }
 
-                // Reconstruir el árbol de Huffman y luego descomprimir
+                // Reconstruir el árbol de Huffman
                 arbolHuffman = fileCompressor.reconstructHuffmanTree(huffmanCodes);
+
+                // Descomprimir el archivo utilizando el árbol de Huffman
                 fileCompressor.decompressFile(file2.getAbsolutePath(), decompressedFilePath, arbolHuffman);
                 mensaje.setText("File decompressed successfully:\n" + decompressedFilePath);
             } catch (IOException | ClassNotFoundException e) {

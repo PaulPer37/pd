@@ -4,6 +4,9 @@
  */
 package ec.edu.espol.pd;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author RUCO HOUSE
@@ -15,8 +18,8 @@ public class HuffmanDecoder {
         this.arbolHuffman = arbolHuffman;
     }
 
-    public String decode(String textoCodificado) {
-        StringBuilder decodificado = new StringBuilder();
+    public byte[] decode(String textoCodificado) {
+        List<Byte> decodificado = new ArrayList<>();
         HuffmanNode nodoActual = arbolHuffman.getRaiz();
         for (char bit : textoCodificado.toCharArray()) {
             if (bit == '0') {
@@ -26,11 +29,14 @@ public class HuffmanDecoder {
             }
 
             if (nodoActual.izquierda == null && nodoActual.derecha == null) {
-                decodificado.append(nodoActual.caracter);
+                decodificado.add(nodoActual.valor);
                 nodoActual = arbolHuffman.getRaiz();
             }
         }
-        return decodificado.toString();
+        byte[] decodedData = new byte[decodificado.size()];
+        for (int i = 0; i < decodedData.length; i++) {
+            decodedData[i] = decodificado.get(i);
+        }
+        return decodedData;
     }
 }
-

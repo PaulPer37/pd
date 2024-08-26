@@ -20,10 +20,10 @@ import java.util.Map;
 public class FileCompressor {
 
     public void compressFile(String inputFilePath, String outputFilePath) throws IOException {
-        String text = new String(Files.readAllBytes(Paths.get(inputFilePath)));
-        HuffmanEncoder encoder = new HuffmanEncoder(text);
-        String encodedText = encoder.encode(text);
-        Map<Character, String> huffmanCodes = encoder.getCodigosHuffman();
+        byte[] data = Files.readAllBytes(Paths.get(inputFilePath));
+        HuffmanEncoder encoder = new HuffmanEncoder(data);
+        String encodedText = encoder.encode(data);
+        Map<Byte, String> huffmanCodes = encoder.getCodigosHuffman();
 
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(outputFilePath))) {
             outputStream.writeObject(huffmanCodes);
@@ -33,39 +33,38 @@ public class FileCompressor {
 
     public void decompressFile(String compressedFilePath, String outputFilePath, HuffmanTree huffmanTree) throws IOException, ClassNotFoundException {
         try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(compressedFilePath))) {
-            Map<Character, String> huffmanCodes = (Map<Character, String>) inputStream.readObject();
+            Map<Byte, String> huffmanCodes = (Map<Byte, String>) inputStream.readObject();
             String encodedText = (String) inputStream.readObject();
 
-            // Usa el árbol de Huffman proporcionado
             HuffmanDecoder decoder = new HuffmanDecoder(huffmanTree);
-            String decodedText = decoder.decode(encodedText);
+            byte[] decodedData = decoder.decode(encodedText);
 
-            Files.write(Paths.get(outputFilePath), decodedText.getBytes());
+            Files.write(Paths.get(outputFilePath), decodedData);
         }
     }
     
-    public HuffmanTree reconstructHuffmanTree(Map<Character, String> huffmanCodes) {
-        HuffmanNode root = new HuffmanNode(0, '\0');
+    public HuffmanTree reconstructHuffmanTree(Map<Byte, String> huffmanCodes) {
+        HuffmanNode root = new HuffmanNode(0, null);
 
-        for (Map.Entry<Character, String> entry : huffmanCodes.entrySet()) {
+        for (Map.Entry<Byte, String> entry : huffmanCodes.entrySet()) {
             HuffmanNode current = root;
             String code = entry.getValue();
 
             for (char bit : code.toCharArray()) {
                 if (bit == '0') {
                     if (current.izquierda == null) {
-                        current.izquierda = new HuffmanNode(0, '\0');
+                        current.izquierda = new HuffmanNode(0, null);
                     }
                     current = current.izquierda;
                 } else if (bit == '1') {
                     if (current.derecha == null) {
-                        current.derecha = new HuffmanNode(0, '\0');
+                        current.derecha = new HuffmanNode(0, null);
                     }
                     current = current.derecha;
                 }
             }
 
-            current.caracter = entry.getKey();
+            current.valor = entry.getKey();
         }
 
         return new HuffmanTree(root);

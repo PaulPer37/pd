@@ -12,17 +12,17 @@ import java.util.Map;
  */
 public class HuffmanEncoder {
     private HuffmanTree arbolHuffman;
-    private Map<Character, String> codigosHuffman;
+    private Map<Byte, String> codigosHuffman;
 
-    public HuffmanEncoder(String text) {
-        arbolHuffman = new HuffmanTree(text);
+    public HuffmanEncoder(byte[] data) {
+        arbolHuffman = new HuffmanTree(data);
         codigosHuffman = arbolHuffman.getCodigosHuffman();
     }
 
-    public String encode(String text) {
+    public String encode(byte[] data) {
         StringBuilder codificado = new StringBuilder();
-        for (char c : text.toCharArray()) {
-            codificado.append(codigosHuffman.get(c));
+        for (byte b : data) {
+            codificado.append(codigosHuffman.get(b));
         }
         return codificado.toString();
     }
@@ -31,8 +31,7 @@ public class HuffmanEncoder {
         return arbolHuffman;
     }
 
-    public Map<Character, String> getCodigosHuffman() {
+    public Map<Byte, String> getCodigosHuffman() {
         return codigosHuffman;
     }
 }
-

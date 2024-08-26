@@ -15,14 +15,14 @@ import java.util.PriorityQueue;
 public class HuffmanTree {
     private HuffmanNode raiz;
 
-    public HuffmanTree(String text) {
-        Map<Character, Integer> mapaFrecuencia = new HashMap<>();
-        for (char c : text.toCharArray()) {
-            mapaFrecuencia.put(c, mapaFrecuencia.getOrDefault(c, 0) + 1);
+    public HuffmanTree(byte[] data) {
+        Map<Byte, Integer> mapaFrecuencia = new HashMap<>();
+        for (byte b : data) {
+            mapaFrecuencia.put(b, mapaFrecuencia.getOrDefault(b, 0) + 1);
         }
 
         PriorityQueue<HuffmanNode> colaPrioridad = new PriorityQueue<>();
-        for (Map.Entry<Character, Integer> entry : mapaFrecuencia.entrySet()) {
+        for (Map.Entry<Byte, Integer> entry : mapaFrecuencia.entrySet()) {
             colaPrioridad.offer(new HuffmanNode(entry.getValue(), entry.getKey()));
         }
 
@@ -35,22 +35,24 @@ public class HuffmanTree {
 
         raiz = colaPrioridad.poll();
     }
+
     public HuffmanTree(HuffmanNode raiz) {
         this.raiz = raiz;
     }
+
     public HuffmanNode getRaiz() {
         return raiz;
     }
 
-    public Map<Character, String> getCodigosHuffman() {
-        Map<Character, String> codigosHuffman = new HashMap<>();
+    public Map<Byte, String> getCodigosHuffman() {
+        Map<Byte, String> codigosHuffman = new HashMap<>();
         generarCodigos(raiz, "", codigosHuffman);
         return codigosHuffman;
     }
 
-    private void generarCodigos(HuffmanNode nodo, String codigo, Map<Character, String> codigosHuffman) {
+    private void generarCodigos(HuffmanNode nodo, String codigo, Map<Byte, String> codigosHuffman) {
         if (nodo.izquierda == null && nodo.derecha == null) {
-            codigosHuffman.put(nodo.caracter, codigo);
+            codigosHuffman.put(nodo.valor, codigo);
             return;
         }
 
