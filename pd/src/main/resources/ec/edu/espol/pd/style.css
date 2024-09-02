@@ -1,0 +1,55 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 2 sept 2024, 12:31:24
+    Author     : DHAMAR
+*/
+Text {
+    -fx-font-size: 50px;
+    -fx-font-family: 'Serif', cursive;
+    -fx-text-fill: #16325B;
+    -fx-font-weight: bold;
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+}
+#titulo {
+    -fx-font-size: 50px;
+    -fx-font-family: 'Serif', cursive; 
+    -fx-text-fill: #16325B; 
+    -fx-font-weight: bold; 
+    -fx-border-color: black;
+    -fx-border-width: 1px; 
+
+    /* Agregados adicionales */
+    -fx-background-color: linear-gradient(to bottom, #e6e9f0, #eef1f5);
+    -fx-border-radius: 10px;
+    -fx-padding: 10px; 
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 5, 0.2, 2, 2);
+    -fx-text-alignment: center; 
+}
+AnchorPane {
+    -fx-background-color: linear-gradient(to bottom, #f0f4f8, #d9e2ec); 
+    -fx-border-color: #16325B; 
+    -fx-border-width: 3px;
+    -fx-border-radius: 10px; 
+    -fx-padding: 15px; 
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 8, 0.2, 3, 3); 
+}
+TextArea {
+    -fx-background-color: #f9f9f9; /* Color de fondo */
+    -fx-border-color: #16325B; /* Color del borde */
+    -fx-border-width: 2px; /* Ancho del borde */
+    -fx-border-radius: 5px; /* Bordes redondeados */
+    -fx-padding: 8px; /* Espaciado interno */
+    -fx-font-family: 'Serif', sans-serif; /* Fuente del texto */
+    -fx-font-size: 14px; /* Tamaño de la fuente */
+    -fx-text-fill: #333333; /* Color del texto */
+    -fx-prompt-text-fill: #aaaaaa; /* Color del texto de marcador */
+    -fx-highlight-fill: #cce5ff; /* Color de fondo del texto seleccionado */
+    -fx-highlight-text-fill: #003366; /* Color del texto seleccionado */
+    -fx-control-inner-background: #ffffff; /* Fondo del área de texto */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 5, 0.2, 2, 2); /* Sombra alrededor del TextArea */
+}
+

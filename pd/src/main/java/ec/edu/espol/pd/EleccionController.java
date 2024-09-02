@@ -15,11 +15,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -40,11 +45,32 @@ public class EleccionController implements Initializable {
     public FileCompressor fileCompressor = new FileCompressor();
     @FXML
     private TextArea mensaje;
+    @FXML
+    private Text titulo;
+    @FXML
+    private AnchorPane Anchorpane;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicialización del controlador
-    }    
+        mensaje.setVisible(false);
+        titulo.sceneProperty().addListener(new ChangeListener<Scene>() {
+        @Override
+        public void changed(ObservableValue<? extends Scene> observable, Scene oldScene, Scene newScene) {
+            if (newScene != null) {
+                newScene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+            }
+        }
+    });
+        Scene scene = titulo.getScene();
+    if (scene != null) {
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        System.out.println("CSS loaded");
+    } else {
+        System.out.println("Scene is null");
+    }
+   
+} 
+
     
     @FXML
     private void uploadFile1(ActionEvent event) {
@@ -81,8 +107,8 @@ public class EleccionController implements Initializable {
         }
     }
 
-    @FXML
     public void handleCompressFile() {
+        mensaje.setVisible(true);
         if (file1 != null) {
             try {
                 String compressedFilePath = file1.getAbsolutePath() + ".huff";
@@ -120,8 +146,8 @@ public class EleccionController implements Initializable {
     
     private HuffmanTree arbolHuffman;
 
-    @FXML
     private void handleDecompressFile() {
+        mensaje.setVisible(true);
         if (file2 != null) {
             try {
                 String decompressedFilePath = this.getDecompressedFilePath(file2);
