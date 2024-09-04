@@ -90,7 +90,7 @@ public class EleccionController implements Initializable {
     }
 
     private boolean validateFile1(File file1) {
-        List<String> validExtensions = Arrays.asList(".txt", ".png", ".jpg", ".jpeg", ".gif", ".bmp");
+        List<String> validExtensions = Arrays.asList(".txt", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".pdf", ".wav");
         String fileName = file1.getName().toLowerCase();
         boolean isValidExtension = validExtensions.stream().anyMatch(fileName::endsWith);
 
@@ -100,7 +100,12 @@ public class EleccionController implements Initializable {
 
         try {
             String mimeType = Files.probeContentType(file1.toPath());
-            return mimeType != null && (mimeType.startsWith("text") || mimeType.startsWith("image"));
+            return mimeType != null && (
+                mimeType.startsWith("text") ||
+                mimeType.startsWith("image") ||
+                mimeType.equals("application/pdf") ||
+                mimeType.equals("audio/wav")
+            );
         } catch (IOException e) {
             e.printStackTrace();
             return false;
