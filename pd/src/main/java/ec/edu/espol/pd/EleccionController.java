@@ -4,6 +4,7 @@
  */
 package ec.edu.espol.pd;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -35,14 +38,12 @@ import javafx.stage.Stage;
  */
 public class EleccionController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
-        private File file1;
+    private File file1;
     private File file2;
     public Button comprimir; 
     public Button descomprimir; 
     public FileCompressor fileCompressor = new FileCompressor();
+    private HuffmanTree arbolHuffman; // Definición de arbolHuffman
     @FXML
     private TextArea mensaje;
     @FXML
@@ -54,24 +55,23 @@ public class EleccionController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         mensaje.setVisible(false);
         titulo.sceneProperty().addListener(new ChangeListener<Scene>() {
-        @Override
-        public void changed(ObservableValue<? extends Scene> observable, Scene oldScene, Scene newScene) {
-            if (newScene != null) {
-                newScene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+            @Override
+            public void changed(ObservableValue<? extends Scene> observable, Scene oldScene, Scene newScene) {
+                if (newScene != null) {
+                    newScene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+                }
             }
-        }
-    });
-        Scene scene = titulo.getScene();
-    if (scene != null) {
-        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        System.out.println("CSS loaded");
-    } else {
-        System.out.println("Scene is null");
-    }
-   
-} 
+        });
 
-    
+        Scene scene = titulo.getScene();
+        if (scene != null) {
+            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+            System.out.println("CSS loaded");
+        } else {
+            System.out.println("Scene is null");
+        }
+    } 
+
     @FXML
     private void uploadFile1(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -81,7 +81,7 @@ public class EleccionController implements Initializable {
         if (file1 != null) {
             if (validateFile1(file1)) {
                 System.out.println("Archivo 1 es válido.");
-                this.handleCompressFile();
+                this.handleCompressFile(); // Asegúrate de que el método esté definido
             } else {
                 System.out.println("Archivo 1 no es válido.");
                 file1 = null;
@@ -112,18 +112,25 @@ public class EleccionController implements Initializable {
         }
     }
 
-    public void handleCompressFile() {
+    private void handleCompressFile() {
         mensaje.setVisible(true);
         if (file1 != null) {
             try {
                 String compressedFilePath = file1.getAbsolutePath() + ".huff";
                 fileCompressor.compressFile(file1.getAbsolutePath(), compressedFilePath);
-                mensaje.setText("File compressed successfully:\n" + compressedFilePath);
+                File originalFile = file1;
+                File compressedFile = new File(compressedFilePath);
+                if (compressedFile.length() >= originalFile.length()) {
+                    mensaje.setText("La compresión no es eficiente; el archivo original es más pequeño.");
+                    compressedFile.delete(); 
+                } else {
+                    mensaje.setText("Archivo comprimido exitosamente:\n" + compressedFilePath);
+                }
             } catch (IOException e) {
-                mensaje.setText("Error during compression:\n" + e.getMessage());
+                mensaje.setText("Error durante la compresión:\n" + e.getMessage());
             }
         } else {
-            mensaje.setText("Please select a file first.");
+            mensaje.setText("Por favor seleccione un archivo primero.");
         }
     }
 
@@ -148,35 +155,49 @@ public class EleccionController implements Initializable {
         String fileName = file2.getName().toLowerCase();
         return fileName.endsWith(".huff");
     }
-    
-    private HuffmanTree arbolHuffman;
 
     private void handleDecompressFile() {
-        mensaje.setVisible(true);
-        if (file2 != null) {
-            try {
-                String decompressedFilePath = this.getDecompressedFilePath(file2);
+       mensaje.setVisible(true);
+       if (file2 != null) {
+           try {
+               String decompressedFilePath = this.getDecompressedFilePath(file2);
 
-                // Leer los códigos de Huffman del archivo comprimido
-                Map<Byte, String> huffmanCodes;
-                try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file2))) {
-                    huffmanCodes = (Map<Byte, String>) inputStream.readObject();
-                }
+               try (DataInputStream dis = new DataInputStream(new FileInputStream(file2))) {
+                   int numCodes = dis.readInt();
+                   Map<Byte, String> huffmanCodes = new HashMap<>();
 
-                // Reconstruir el árbol de Huffman
-                arbolHuffman = fileCompressor.reconstructHuffmanTree(huffmanCodes);
+                   for (int i = 0; i < numCodes; i++) {
+                       byte key = dis.readByte();
+                       String value = dis.readUTF();
+                       huffmanCodes.put(key, value);
+                   }
+                   arbolHuffman = fileCompressor.reconstructHuffmanTree(huffmanCodes);
+                   int encodedTextLength = dis.readInt();    
+                   int numBytes = (encodedTextLength + 7) / 8;
+                   byte[] encodedBytes = new byte[numBytes];
+                   dis.readFully(encodedBytes);
+                   BitSet bitSet = BitSet.valueOf(encodedBytes);
+                   StringBuilder encodedTextBuilder = new StringBuilder(encodedTextLength);
+                   for (int i = 0; i < encodedTextLength; i++) {
+                       encodedTextBuilder.append(bitSet.get(i) ? '1' : '0');
+                   }
+                   String encodedText = encodedTextBuilder.toString();
+                   HuffmanDecoder decoder = new HuffmanDecoder(arbolHuffman);
+                   byte[] decodedData = decoder.decode(encodedText);
+                   Files.write(Paths.get(decompressedFilePath), decodedData);
 
-                // Descomprimir el archivo utilizando el árbol de Huffman
-                fileCompressor.decompressFile(file2.getAbsolutePath(), decompressedFilePath, arbolHuffman);
-                mensaje.setText("File decompressed successfully:\n" + decompressedFilePath);
-            } catch (IOException | ClassNotFoundException e) {
-                mensaje.setText("Error during decompression:\n" + e.getMessage());
-            }
-        } else {
-            mensaje.setText("Please select a file first.");
-        }
-    }
+                   mensaje.setText("File decompressed successfully:\n" + decompressedFilePath);
+               }
 
+           } catch (IOException e) {
+               mensaje.setText("Error during decompression:\n" + e.getMessage());
+           }
+       } else {
+           mensaje.setText("Please select a file first.");
+       }
+   }
+
+    
     private String getDecompressedFilePath(File file) {
         String filePath = file.getAbsolutePath();
         return filePath.replace(".huff", "");
