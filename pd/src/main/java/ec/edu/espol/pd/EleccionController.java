@@ -112,27 +112,31 @@ public class EleccionController implements Initializable {
         }
     }
 
-    private void handleCompressFile() {
-        mensaje.setVisible(true);
-        if (file1 != null) {
-            try {
-                String compressedFilePath = file1.getAbsolutePath() + ".huff";
-                fileCompressor.compressFile(file1.getAbsolutePath(), compressedFilePath);
-                File originalFile = file1;
-                File compressedFile = new File(compressedFilePath);
-                if (compressedFile.length() >= originalFile.length()) {
-                    mensaje.setText("La compresión no es eficiente; el archivo original es más pequeño.");
-                    compressedFile.delete(); 
-                } else {
-                    mensaje.setText("Archivo comprimido exitosamente:\n" + compressedFilePath);
-                }
-            } catch (IOException e) {
-                mensaje.setText("Error durante la compresión:\n" + e.getMessage());
+   private void handleCompressFile() {
+    mensaje.setVisible(true);
+    if (file1 != null) {
+        try {
+            long originalFileSize = file1.length();
+            String compressedFilePath = file1.getAbsolutePath() + ".huff";
+            fileCompressor.compressFile(file1.getAbsolutePath(), compressedFilePath);
+            File compressedFile = new File(compressedFilePath);
+            long compressedFileSize = compressedFile.length();
+            if (compressedFileSize >= originalFileSize) {
+                mensaje.setText("La compresión no es eficiente; el archivo original es más pequeño.");
+                compressedFile.delete(); 
+            } else {
+                double compressionRatio = (1 - (double) compressedFileSize / originalFileSize) * 100;
+                mensaje.setText(String.format("Archivo comprimido exitosamente:\n%s\nTamaño Original: %d bytes\nTamaño Comprimido: %d bytes\nPorcentaje de Compresión: %.2f%%",
+                    compressedFilePath, originalFileSize, compressedFileSize, compressionRatio));
             }
-        } else {
-            mensaje.setText("Por favor seleccione un archivo primero.");
+        } catch (IOException e) {
+            mensaje.setText("Error durante la compresión:\n" + e.getMessage());
         }
+    } else {
+        mensaje.setText("Por favor seleccione un archivo primero.");
     }
+}
+
 
     @FXML
     private void uploadFile2(ActionEvent event) {
